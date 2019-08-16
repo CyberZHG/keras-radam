@@ -1,7 +1,8 @@
 from .backend import keras
 from .backend import backend as K
 
-__all__ = ['RAdam','RNAdam']
+__all__ = ['RAdam' ,'RNAdam']
+
 
 class RAdam(keras.optimizers.Optimizer):
     """RAdam optimizer.
@@ -96,6 +97,7 @@ class RAdam(keras.optimizers.Optimizer):
         base_config = super(RAdam, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
+
 class RNAdam(keras.optimizers.Optimizer):
     """RNAdam optimizer.
     # Arguments
@@ -107,7 +109,7 @@ class RNAdam(keras.optimizers.Optimizer):
     """
 
     def __init__(self, lr=0.002, beta_1=0.9, beta_2=0.999,
-                 epsilon=None, schedule_decay=0.004,**kwargs):
+                 epsilon=None, schedule_decay=0.004, **kwargs):
         super(RNAdam, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, dtype='int64', name='iterations')
@@ -136,7 +138,7 @@ class RNAdam(keras.optimizers.Optimizer):
 
         sma_inf = 2.0 / (1.0 - self.beta_2) - 1.0
         sma_t = sma_inf - 2.0 * t * beta_2_t / (1.0 - beta_2_t)
-        
+
         momentum_cache_t = self.beta_1 * (1. - 0.5 * (K.pow(K.cast_to_floatx(0.96), t * self.schedule_decay)))
         momentum_cache_t_1 = self.beta_1 * (1. - 0.5 * (K.pow(K.cast_to_floatx(0.96), (t + 1) * self.schedule_decay)))
         m_schedule_new = self.m_schedule * momentum_cache_t
@@ -150,7 +152,7 @@ class RNAdam(keras.optimizers.Optimizer):
 
             m_t_hat = m_t / (1. - m_schedule_next)
             v_t_hat = v_t / (1. - K.pow(self.beta_2, t))
-            
+
             m_t_bar = (1. - momentum_cache_t) * g_prime + (momentum_cache_t_1 * m_t_hat)
 
             r_t = K.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
@@ -171,7 +173,7 @@ class RNAdam(keras.optimizers.Optimizer):
 
             self.updates.append(K.update(p, new_p))
         return self.updates
-    
+
     def get_config(self):
         config = {
             'lr': float(K.get_value(self.lr)),
