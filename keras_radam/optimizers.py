@@ -1,7 +1,5 @@
 from .backend import keras
 from .backend import backend as K
-from .legacy import interfaces
-
 
 __all__ = ['RAdam','RNAdam']
 
@@ -121,7 +119,6 @@ class RNAdam(keras.optimizers.Optimizer):
         self.epsilon = epsilon
         self.schedule_decay = schedule_decay
 
-    @interfaces.legacy_get_updates_support
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)
         self.updates = [K.update_add(self.iterations, 1)]
