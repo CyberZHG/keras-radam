@@ -37,10 +37,10 @@ class TestSimilar(TestCase):
     def test_same(self):
         w, b = self.gen_random_weights()
         torch_linear = self.gen_torch_linear(w, b)
-        keras_linear = self.gen_keras_linear(w, b)
+        keras_linear = self.gen_keras_linear(w, b, weight_decay=1e-3)
         w, b = self.gen_random_weights()
         criterion = torch.nn.MSELoss()
-        optimizer = OfficialRAdam(torch_linear.parameters(), lr=1e-3, eps=K.epsilon())
+        optimizer = OfficialRAdam(torch_linear.parameters(), lr=1e-3, weight_decay=1e-3, eps=K.epsilon())
         for i in range(500):
             x = np.random.standard_normal((1, 3))
             y = np.dot(x, w) + b

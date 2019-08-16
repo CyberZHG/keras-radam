@@ -66,7 +66,7 @@ class RAdam(keras.optimizers.Optimizer):
 
             r_t = K.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
                          (sma_t - 2.0) / (sma_inf - 2.0) *
-                         sma_inf / sma_t + self.epsilon)
+                         sma_inf / sma_t)
 
             p_t = K.switch(sma_t > 5, r_t * m_hat_t / v_hat_t, m_hat_t)
 
