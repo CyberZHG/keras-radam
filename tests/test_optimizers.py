@@ -39,7 +39,12 @@ class TestRAdam(TestCase):
         model.save(model_path)
         model = keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
 
-        model.fit(x, y, epochs=5)
+        model.fit(x, y,
+                  epochs=100,
+                  callbacks=[
+                      keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-6, verbose=True),
+                      keras.callbacks.EarlyStopping(monitor='loss', patience=3),
+                  ])
 
         model_path = os.path.join(tempfile.gettempdir(), 'test_accumulation_%f.h5' % np.random.random())
         model.save(model_path)
