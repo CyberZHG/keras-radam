@@ -43,10 +43,16 @@ y = np.dot(x, w)
 model.fit(x, y, epochs=5)
 ```
 
-## Use `tf.keras` or `tf-2.0`
+## Q & A
+
+### About Correctness
+
+The optimizer produces similar losses and weights to the official optimizer after 500 steps.
+
+### Use `tf.keras` or `tf-2.0`
 
 Add `TF_KERAS=1` to environment variables to use `tensorflow.python.keras`.
 
-## Use `theano` Backend
+### Use `theano` Backend
 
 Add `KERAS_BACKEND=theano` to environment variables to enable `theano` backend.

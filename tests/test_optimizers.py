@@ -42,7 +42,7 @@ class TestRAdam(TestCase):
         model.fit(x, y,
                   epochs=100,
                   callbacks=[
-                      keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-6, verbose=True),
+                      keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-6, patience=2, verbose=True),
                       keras.callbacks.EarlyStopping(monitor='loss', patience=3),
                   ])
 

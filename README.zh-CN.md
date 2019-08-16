@@ -43,10 +43,16 @@ y = np.dot(x, w)
 model.fit(x, y, epochs=5)
 ```
 
-## 使用`tf.keras`或`tf-2.0`
+## Q & A
+
+### 正确性
+
+优化器在500步内和官方的损失接近，得到的权重大致相同。
+
+### 使用`tf.keras`或`tf-2.0`
 
 将`TF_KERAS=1`添加到环境变量中。
 
-## 使用`theano`后端
+### 使用`theano`后端
 
 将`KERAS_BACKEND=theano`添加到环境变量中。

@@ -11,7 +11,7 @@ with codecs.open('requirements.txt', 'r', 'utf8') as reader:
 
 setup(
     name='keras-rectified-adam',
-    version='0.0.3',
+    version='0.1.0',
     packages=find_packages(),
     url='https://github.com/CyberZHG/keras-radam',
     license='MIT',

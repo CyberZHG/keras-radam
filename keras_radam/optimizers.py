@@ -68,7 +68,7 @@ class RAdam(keras.optimizers.Optimizer):
                          (sma_t - 2.0) / (sma_inf - 2.0) *
                          sma_inf / sma_t + self.epsilon)
 
-            p_t = K.switch(sma_t > 5, r_t * m_hat_t / (K.sqrt(v_hat_t + self.epsilon)), m_hat_t)
+            p_t = K.switch(sma_t > 5, r_t * m_hat_t / v_hat_t, m_hat_t)
 
             if self.initial_weight_decay > 0:
                 p_t += self.weight_decay * p
