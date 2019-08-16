@@ -157,7 +157,7 @@ class RNAdam(keras.optimizers.Optimizer):
 
             r_t = K.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
                          (sma_t - 2.0) / (sma_inf - 2.0) *
-                         sma_inf / sma_t + self.epsilon)
+                         sma_inf / sma_t)
 
             p_t = K.switch(sma_t > 5, r_t * m_t_bar / (K.sqrt(v_t_hat + self.epsilon)), m_t_bar)
 
