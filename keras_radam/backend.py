@@ -3,8 +3,7 @@ import os
 __all__ = [
     'keras', 'utils', 'activations', 'applications', 'backend', 'datasets', 'engine',
     'layers', 'preprocessing', 'wrappers', 'callbacks', 'constraints', 'initializers',
-    'metrics', 'models', 'losses', 'optimizers', 'regularizers', 'TF_KERAS', 'EAGER_MODE',
-    'legacy']
+    'metrics', 'models', 'losses', 'optimizers', 'regularizers', 'TF_KERAS', 'EAGER_MODE', 'legacy']
 
 TF_KERAS = False
 EAGER_MODE = False
