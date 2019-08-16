@@ -42,3 +42,11 @@ y = np.dot(x, w)
 # 开始训练
 model.fit(x, y, epochs=5)
 ```
+
+## 使用`tf.keras`或`tf-2.0`
+
+将`TF_KERAS=1`添加到环境变量中。
+
+## 使用`theano`后端
+
+将`KERAS_BACKEND=theano`添加到环境变量中。
