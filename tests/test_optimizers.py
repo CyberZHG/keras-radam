@@ -19,7 +19,7 @@ class TestRAdam(TestCase):
             bias_constraint=keras.constraints.max_norm(),
             name='Dense',
         ))
-        model.compile(RAdam(decay=1e-4), loss='mse')
+        model.compile(RAdam(decay=1e-4, weight_decay=1e-4), loss='mse')
         return model
 
     @staticmethod
