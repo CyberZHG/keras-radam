@@ -5,6 +5,7 @@ __all__ = ['RAdam','RNAdam']
 
 class RAdam(keras.optimizers.Optimizer):
     """RAdam optimizer.
+
     # Arguments
         lr: float >= 0. Learning rate.
         beta_1: float, 0 < beta < 1. Generally close to 1.
