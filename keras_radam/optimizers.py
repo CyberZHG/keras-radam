@@ -1,7 +1,7 @@
 from .backend import keras
 from .backend import backend as K
 
-__all__ = ['RAdam' ,'RNAdam']
+__all__ = ['RAdam', 'RNAdam']
 
 
 class RAdam(keras.optimizers.Optimizer):
