@@ -43,6 +43,14 @@ y = np.dot(x, w)
 model.fit(x, y, epochs=5)
 ```
 
+### Use Warmup
+
+```python
+from keras_radam import RAdam
+
+RAdam(total_step=10000, warmup_proportion=0.1, min_lr=1e-5)
+```
+
 ## Q & A
 
 ### About Correctness
