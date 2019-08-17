@@ -25,7 +25,7 @@ class TestRAdam(TestCase):
     @staticmethod
     def gen_linear_data(w=None) -> (np.ndarray, np.ndarray):
         np.random.seed(0xcafe)
-        x = np.random.standard_normal((4096 * np.random.randint(20, 30), 17))
+        x = np.random.standard_normal((4096 * 30, 17))
         if w is None:
             w = np.random.standard_normal((17, 3))
         y = np.dot(x, w)
@@ -41,6 +41,7 @@ class TestRAdam(TestCase):
 
         model.fit(x, y,
                   epochs=100,
+                  batch_size=32,
                   callbacks=[
                       keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-8, patience=2, verbose=True),
                       keras.callbacks.EarlyStopping(monitor='loss', patience=3),
@@ -54,8 +55,11 @@ class TestRAdam(TestCase):
         predicted = model.predict(x)
         self.assertLess(np.max(np.abs(predicted - y)), atol)
 
+    def test_amsgrad(self):
+        self._test_fit(RAdam(amsgrad=True), atol=1e-2)
+
     def test_decay(self):
         self._test_fit(RAdam(decay=1e-4, weight_decay=1e-4))
 
-    def test_amsgrad(self):
-        self._test_fit(RAdam(amsgrad=True), atol=1e-2)
+    def test_warmup(self):
+        self._test_fit(RAdam(total_steps=38400, warmup_proportion=0.1, min_lr=1e-6))

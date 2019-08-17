@@ -18,6 +18,9 @@ class RAdam(keras.optimizers.Optimizer):
         amsgrad: boolean. Whether to apply the AMSGrad variant of this
             algorithm from the paper "On the Convergence of Adam and
             Beyond".
+        total_steps: int >= 0. Total number of training steps. Enable warmup by setting a positive value.
+        warmup_proportion: 0 < warmup_proportion < 1. The proportion of increasing steps.
+        min_lr: float >= 0. Minimum learning rate after warmup.
     # References
         - [Adam - A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980v8)
         - [On the Convergence of Adam and Beyond](https://openreview.net/forum?id=ryQu7f-RZ)
@@ -25,7 +28,8 @@ class RAdam(keras.optimizers.Optimizer):
     """
 
     def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
-                 epsilon=None, decay=0., weight_decay=0., amsgrad=False, **kwargs):
+                 epsilon=None, decay=0., weight_decay=0., amsgrad=False,
+                 total_steps=0, warmup_proportion=0.1, min_lr=0., **kwargs):
         super(RAdam, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, dtype='int64', name='iterations')
@@ -34,11 +38,15 @@ class RAdam(keras.optimizers.Optimizer):
             self.beta_2 = K.variable(beta_2, name='beta_2')
             self.decay = K.variable(decay, name='decay')
             self.weight_decay = K.variable(weight_decay, name='weight_decay')
+            self.total_steps = K.variable(total_steps, name='total_steps')
+            self.warmup_proportion = K.variable(warmup_proportion, name='warmup_proportion')
+            self.min_lr = K.variable(lr, name='min_lr')
         if epsilon is None:
             epsilon = K.epsilon()
         self.epsilon = epsilon
         self.initial_decay = decay
         self.initial_weight_decay = weight_decay
+        self.initial_total_steps = total_steps
         self.amsgrad = amsgrad
 
     def get_updates(self, loss, params):
@@ -46,10 +54,20 @@ class RAdam(keras.optimizers.Optimizer):
         self.updates = [K.update_add(self.iterations, 1)]
 
         lr = self.lr
+
         if self.initial_decay > 0:
             lr = lr * (1. / (1. + self.decay * K.cast(self.iterations, K.dtype(self.decay))))
 
         t = K.cast(self.iterations, K.floatx()) + 1
+
+        if self.initial_total_steps > 0:
+            warmup_steps = self.total_steps * self.warmup_proportion
+            decay_steps = self.total_steps - warmup_steps
+            lr = K.switch(
+                t <= warmup_steps,
+                lr * (t / warmup_steps),
+                lr * (1.0 - K.minimum(t, decay_steps) / decay_steps),
+            )
 
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p), name='m_' + str(i)) for (i, p) in enumerate(params)]
         vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p), name='v_' + str(i)) for (i, p) in enumerate(params)]
@@ -110,6 +128,9 @@ class RAdam(keras.optimizers.Optimizer):
             'weight_decay': float(K.get_value(self.weight_decay)),
             'epsilon': self.epsilon,
             'amsgrad': self.amsgrad,
+            'total_steps': float(K.get_value(self.total_steps)),
+            'warmup_proportion': float(K.get_value(self.warmup_proportion)),
+            'min_lr': float(K.get_value(self.min_lr)),
         }
         base_config = super(RAdam, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
