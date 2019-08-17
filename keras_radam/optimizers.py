@@ -15,13 +15,17 @@ class RAdam(keras.optimizers.Optimizer):
         epsilon: float >= 0. Fuzz factor. If `None`, defaults to `K.epsilon()`.
         decay: float >= 0. Learning rate decay over each update.
         weight_decay: float >= 0. Weight decay for each param.
+        amsgrad: boolean. Whether to apply the AMSGrad variant of this
+            algorithm from the paper "On the Convergence of Adam and
+            Beyond".
     # References
         - [Adam - A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980v8)
+        - [On the Convergence of Adam and Beyond](https://openreview.net/forum?id=ryQu7f-RZ)
         - [On The Variance Of The Adaptive Learning Rate And Beyond](https://arxiv.org/pdf/1908.03265v1.pdf)
     """
 
     def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
-                 epsilon=None, decay=0., weight_decay=0., **kwargs):
+                 epsilon=None, decay=0., weight_decay=0., amsgrad=False, **kwargs):
         super(RAdam, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, dtype='int64', name='iterations')
@@ -35,6 +39,7 @@ class RAdam(keras.optimizers.Optimizer):
         self.epsilon = epsilon
         self.initial_decay = decay
         self.initial_weight_decay = weight_decay
+        self.amsgrad = amsgrad
 
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)
@@ -49,7 +54,12 @@ class RAdam(keras.optimizers.Optimizer):
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p), name='m_' + str(i)) for (i, p) in enumerate(params)]
         vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p), name='v_' + str(i)) for (i, p) in enumerate(params)]
 
-        self.weights = [self.iterations] + ms + vs
+        if self.amsgrad:
+            vhats = [K.zeros(K.int_shape(p), dtype=K.dtype(p), name='vhat_' + str(i)) for (i, p) in enumerate(params)]
+        else:
+            vhats = [K.zeros(1, name='vhat_' + str(i)) for i in range(len(params))]
+
+        self.weights = [self.iterations] + ms + vs + vhats
 
         beta_1_t = K.pow(self.beta_1, t)
         beta_2_t = K.pow(self.beta_2, t)
@@ -57,18 +67,23 @@ class RAdam(keras.optimizers.Optimizer):
         sma_inf = 2.0 / (1.0 - self.beta_2) - 1.0
         sma_t = sma_inf - 2.0 * t * beta_2_t / (1.0 - beta_2_t)
 
-        for p, g, m, v in zip(params, grads, ms, vs):
+        for p, g, m, v, vhat in zip(params, grads, ms, vs, vhats):
             m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
             v_t = (self.beta_2 * v) + (1. - self.beta_2) * K.square(g)
 
-            m_hat_t = m_t / (1.0 - beta_1_t)
-            v_hat_t = K.sqrt(v_t / (1.0 - beta_2_t) + self.epsilon)
+            m_corr_t = m_t / (1.0 - beta_1_t)
+            if self.amsgrad:
+                vhat_t = K.maximum(vhat, v_t)
+                v_corr_t = K.sqrt(vhat_t / (1.0 - beta_2_t) + self.epsilon)
+                self.updates.append(K.update(vhat, vhat_t))
+            else:
+                v_corr_t = K.sqrt(v_t / (1.0 - beta_2_t) + self.epsilon)
 
             r_t = K.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
                          (sma_t - 2.0) / (sma_inf - 2.0) *
                          sma_inf / sma_t)
 
-            p_t = K.switch(sma_t > 5, r_t * m_hat_t / v_hat_t, m_hat_t)
+            p_t = K.switch(sma_t > 5, r_t * m_corr_t / v_corr_t, m_corr_t)
 
             if self.initial_weight_decay > 0:
                 p_t += self.weight_decay * p
@@ -94,6 +109,7 @@ class RAdam(keras.optimizers.Optimizer):
             'decay': float(K.get_value(self.decay)),
             'weight_decay': float(K.get_value(self.weight_decay)),
             'epsilon': self.epsilon,
+            'amsgrad': self.amsgrad,
         }
         base_config = super(RAdam, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))

@@ -11,7 +11,7 @@ from keras_radam import RAdam
 class TestRAdam(TestCase):
 
     @staticmethod
-    def gen_linear_model() -> keras.models.Model:
+    def gen_linear_model(optimizer) -> keras.models.Model:
         model = keras.models.Sequential()
         model.add(keras.layers.Dense(
             input_shape=(17,),
@@ -19,7 +19,7 @@ class TestRAdam(TestCase):
             bias_constraint=keras.constraints.max_norm(),
             name='Dense',
         ))
-        model.compile(RAdam(decay=1e-4, weight_decay=1e-4), loss='mse')
+        model.compile(optimizer, loss='mse')
         return model
 
     @staticmethod
@@ -31,9 +31,9 @@ class TestRAdam(TestCase):
         y = np.dot(x, w)
         return x, y, w
 
-    def test_fit(self):
+    def _test_fit(self, optimizer, atol=1e-3):
         x, y, w = self.gen_linear_data()
-        model = self.gen_linear_model()
+        model = self.gen_linear_model(optimizer)
 
         model_path = os.path.join(tempfile.gettempdir(), 'test_accumulation_%f.h5' % np.random.random())
         model.save(model_path)
@@ -42,7 +42,7 @@ class TestRAdam(TestCase):
         model.fit(x, y,
                   epochs=100,
                   callbacks=[
-                      keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-6, patience=2, verbose=True),
+                      keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-8, patience=2, verbose=True),
                       keras.callbacks.EarlyStopping(monitor='loss', patience=3),
                   ])
 
@@ -52,4 +52,10 @@ class TestRAdam(TestCase):
 
         x, y, w = self.gen_linear_data(w)
         predicted = model.predict(x)
-        self.assertLess(np.max(np.abs(predicted - y)), 1e-3)
+        self.assertLess(np.max(np.abs(predicted - y)), atol)
+
+    def test_decay(self):
+        self._test_fit(RAdam(decay=1e-4, weight_decay=1e-4))
+
+    def test_amsgrad(self):
+        self._test_fit(RAdam(amsgrad=True), atol=1e-2)
