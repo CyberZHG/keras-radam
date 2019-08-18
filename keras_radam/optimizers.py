@@ -40,7 +40,7 @@ class RAdam(keras.optimizers.Optimizer):
             self.weight_decay = K.variable(weight_decay, name='weight_decay')
             self.total_steps = K.variable(total_steps, name='total_steps')
             self.warmup_proportion = K.variable(warmup_proportion, name='warmup_proportion')
-            self.min_lr = K.variable(lr, name='min_lr')
+            self.min_lr = K.variable(min_lr, name='min_lr')
         if epsilon is None:
             epsilon = K.epsilon()
         self.epsilon = epsilon
