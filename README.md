@@ -14,7 +14,7 @@
 
 \[[中文](https://github.com/CyberZHG/keras-radam/blob/master/README.zh-CN.md)|[English](https://github.com/CyberZHG/keras-radam/blob/master/README.md)\]
 
-Unofficial implementation of [RAdam](https://arxiv.org/pdf/1908.03265v1.pdf).
+Unofficial implementation of [RAdam](https://arxiv.org/pdf/1908.03265v1.pdf) in Keras and TensorFlow. 
 
 ## Install
 
@@ -41,6 +41,14 @@ y = np.dot(x, w)
 
 # Fit
 model.fit(x, y, epochs=5)
+```
+
+### TensorFlow without Keras
+
+```python
+from keras_radam.training import RAdamOptimizer
+
+RAdamOptimizer(learning_rate=1e-3)
 ```
 
 ### Use Warmup

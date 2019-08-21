@@ -14,7 +14,7 @@
 
 \[[中文](https://github.com/CyberZHG/keras-radam/blob/master/README.zh-CN.md)|[English](https://github.com/CyberZHG/keras-radam/blob/master/README.md)\]
 
-[RAdam](https://arxiv.org/pdf/1908.03265v1.pdf)的非官方实现。
+[RAdam](https://arxiv.org/pdf/1908.03265v1.pdf)的非官方实现，包含Keras和TensorFlow两种。
 
 ## 安装
 
@@ -41,6 +41,14 @@ y = np.dot(x, w)
 
 # 开始训练
 model.fit(x, y, epochs=5)
+```
+
+### TensorFlow版本的实现
+
+```python
+from keras_radam.training import RAdamOptimizer
+
+RAdamOptimizer(learning_rate=1e-3)
 ```
 
 ### 使用Warmup
