@@ -62,7 +62,7 @@ class RAdam(OptimizerV2):
         self._set_hyper('beta_2', beta_2)
         self._set_hyper('decay', self._initial_decay)
         self._set_hyper('weight_decay', weight_decay)
-        self._set_hyper('total_steps', total_steps)
+        self._set_hyper('total_steps', float(total_steps))
         self._set_hyper('warmup_proportion', warmup_proportion)
         self._set_hyper('min_lr', min_lr)
         self.epsilon = epsilon or backend_config.epsilon()
