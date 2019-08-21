@@ -3,7 +3,7 @@ from unittest import TestCase
 import torch
 import numpy as np
 
-from keras_radam.backend import keras
+from keras_radam.backend import keras, TF_KERAS
 from keras_radam.backend import backend as K
 from keras_radam import RAdam
 
@@ -20,24 +20,21 @@ class TestSimilar(TestCase):
         return linear
 
     @staticmethod
-    def gen_keras_linear(w, b, weight_decay=0.):
+    def gen_keras_linear(optimizer, w, b):
         model = keras.models.Sequential()
         model.add(keras.layers.Dense(input_shape=(3,), units=5, name='Dense'))
         model.get_layer('Dense').set_weights([w, b])
-        model.compile(optimizer=RAdam(
-            lr=1e-3,
-            weight_decay=weight_decay,
-        ), loss='mse')
+        model.compile(optimizer=optimizer, loss='mse')
         return model
 
     @staticmethod
     def gen_random_weights():
         return np.random.standard_normal((3, 5)), np.random.standard_normal((5,))
 
-    def test_same(self):
+    def _test_same(self, optimizer):
         w, b = self.gen_random_weights()
         torch_linear = self.gen_torch_linear(w, b)
-        keras_linear = self.gen_keras_linear(w, b, weight_decay=1e-3)
+        keras_linear = self.gen_keras_linear(optimizer, w, b)
         w, b = self.gen_random_weights()
         criterion = torch.nn.MSELoss()
         optimizer = OfficialRAdam(torch_linear.parameters(), lr=1e-3, weight_decay=1e-3, eps=K.epsilon())
@@ -63,3 +60,12 @@ class TestSimilar(TestCase):
             keras_linear.get_weights()[1],
             atol=1e-2,
         ))
+
+    def test_same_keras(self):
+        self._test_same(RAdam(lr=1e-3, weight_decay=1e-3))
+
+    def test_same_tf(self):
+        if not TF_KERAS:
+            return
+        from keras_radam.training import RAdamOptimizer
+        self._test_same(RAdamOptimizer(learning_rate=1e-3, weight_decay=1e-3))
