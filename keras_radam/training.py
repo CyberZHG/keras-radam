@@ -124,7 +124,7 @@ class RAdamOptimizer(optimizer.Optimizer):
         self._min_lr_t = ops.convert_to_tensor(min_lr, name="min_lr")
 
     def _apply_dense(self, grad, var):
-        self._resource_apply_dense(grad, var)
+        return self._resource_apply_dense(grad, var)
 
     def _resource_apply_dense(self, grad, var):
         step, beta1_power, beta2_power = self._get_beta_accumulators()
