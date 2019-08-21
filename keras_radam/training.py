@@ -124,6 +124,9 @@ class RAdamOptimizer(optimizer.Optimizer):
         self._min_lr_t = ops.convert_to_tensor(min_lr, name="min_lr")
 
     def _apply_dense(self, grad, var):
+        self._resource_apply_dense(grad, var)
+
+    def _resource_apply_dense(self, grad, var):
         step, beta1_power, beta2_power = self._get_beta_accumulators()
         beta1_power = math_ops.cast(beta1_power, var.dtype.base_dtype)
         beta2_power = math_ops.cast(beta2_power, var.dtype.base_dtype)
@@ -175,9 +178,6 @@ class RAdamOptimizer(optimizer.Optimizer):
         if self._amsgrad:
             updates.append(vhat_t)
         return control_flow_ops.group(*updates)
-
-    def _resource_apply_dense(self, grad, var):
-        self._apply_dense(grad, var)
 
     def _apply_sparse_shared(self, grad, var, indices, scatter_add):
         step, beta1_power, beta2_power = self._get_beta_accumulators()
