@@ -59,13 +59,15 @@ class RAdam(keras.optimizers.Optimizer):
             lr = lr * (1. / (1. + self.decay * K.cast(self.iterations, K.dtype(self.decay))))
 
         t = K.cast(self.iterations, K.floatx()) + 1
-
+        
         if self.initial_total_steps > 0:
             warmup_steps = self.total_steps * self.warmup_proportion
+            decay_steps  = self.total_steps - warmup_steps
+            decay_rate   = (self.min_lr - lr)/decay_steps
             lr = K.switch(
                 t <= warmup_steps,
                 lr * (t / warmup_steps),
-                self.min_lr + (lr - self.min_lr) * (1.0 - K.minimum(t, self.total_steps) / self.total_steps),
+                lr + decay_rate*K.minimum(t-warmup_steps,decay_steps)
             )
 
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p), name='m_' + str(i)) for (i, p) in enumerate(params)]
