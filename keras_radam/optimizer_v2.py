@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.python.keras.optimizer_v2.optimizer_v2 import OptimizerV2
 from tensorflow.python import ops, math_ops, state_ops, control_flow_ops
-from tensorflow.python.keras import backend_config
+from tensorflow.python.keras import backend as K
 
 __all__ = ['RAdam']
 
@@ -65,7 +65,7 @@ class RAdam(OptimizerV2):
         self._set_hyper('total_steps', float(total_steps))
         self._set_hyper('warmup_proportion', warmup_proportion)
         self._set_hyper('min_lr', min_lr)
-        self.epsilon = epsilon or backend_config.epsilon()
+        self.epsilon = epsilon or K.epsilon()
         self.amsgrad = amsgrad
         self._initial_weight_decay = weight_decay
         self._initial_total_steps = total_steps
