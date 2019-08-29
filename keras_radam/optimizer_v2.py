@@ -102,10 +102,12 @@ class RAdam(OptimizerV2):
             total_steps = self._get_hyper('total_steps', var_dtype)
             warmup_steps = total_steps * self._get_hyper('warmup_proportion', var_dtype)
             min_lr = self._get_hyper('min_lr', var_dtype)
+            decay_steps = K.maximum(total_steps - warmup_steps, 1)
+            decay_rate = (min_lr - lr_t) / decay_steps
             lr_t = tf.where(
                 local_step <= warmup_steps,
                 lr_t * (local_step / warmup_steps),
-                min_lr + (lr_t - min_lr) * (1.0 - tf.minimum(local_step, total_steps) / total_steps),
+                lr_t + decay_rate * K.minimum(local_step - warmup_steps, decay_steps),
             )
 
         sma_inf = 2.0 / (1.0 - beta_2_t) - 1.0
@@ -160,10 +162,12 @@ class RAdam(OptimizerV2):
             total_steps = self._get_hyper('total_steps', var_dtype)
             warmup_steps = total_steps * self._get_hyper('warmup_proportion', var_dtype)
             min_lr = self._get_hyper('min_lr', var_dtype)
+            decay_steps = K.maximum(total_steps - warmup_steps, 1)
+            decay_rate = (min_lr - lr_t) / decay_steps
             lr_t = tf.where(
                 local_step <= warmup_steps,
                 lr_t * (local_step / warmup_steps),
-                min_lr + (lr_t - min_lr) * (1.0 - tf.minimum(local_step, total_steps) / total_steps),
+                lr_t + decay_rate * K.minimum(local_step - warmup_steps, decay_steps),
             )
 
         sma_inf = 2.0 / (1.0 - beta_2_t) - 1.0

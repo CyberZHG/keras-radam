@@ -137,10 +137,12 @@ class RAdamOptimizer(optimizer.Optimizer):
             warmup_proportion = math_ops.cast(self._warmup_proportion_t, var.dtype.base_dtype)
             min_lr = math_ops.cast(self._min_lr_t, var.dtype.base_dtype)
             warmup_steps = total_steps * warmup_proportion
+            decay_steps = math_ops.maximum(total_steps - warmup_steps, 1)
+            decay_rate = (min_lr - lr_t) / decay_steps
             lr_t = tf.where(
                 step <= warmup_steps,
                 lr_t * (step / warmup_steps),
-                min_lr + (lr_t - min_lr) * (1.0 - math_ops.minimum(step, total_steps) / total_steps)
+                lr_t + decay_rate * math_ops.minimum(step - warmup_steps, decay_steps),
             )
 
         beta1_t = math_ops.cast(self._beta1_t, var.dtype.base_dtype)
@@ -190,10 +192,12 @@ class RAdamOptimizer(optimizer.Optimizer):
             warmup_proportion = math_ops.cast(self._warmup_proportion_t, var.dtype.base_dtype)
             min_lr = math_ops.cast(self._min_lr_t, var.dtype.base_dtype)
             warmup_steps = total_steps * warmup_proportion
+            decay_steps = math_ops.maximum(total_steps - warmup_steps, 1)
+            decay_rate = (min_lr - lr_t) / decay_steps
             lr_t = tf.where(
                 step <= warmup_steps,
                 lr_t * (step / warmup_steps),
-                min_lr + (lr_t - min_lr) * (1.0 - math_ops.minimum(step, total_steps) / total_steps)
+                lr_t + decay_rate * math_ops.minimum(step - warmup_steps, decay_steps),
             )
 
         beta1_t = math_ops.cast(self._beta1_t, var.dtype.base_dtype)
