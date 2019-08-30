@@ -31,7 +31,7 @@ class TestRAdam(TestCase):
         y = np.dot(x, w)
         return x, y, w
 
-    def _test_fit(self, optimizer, atol=1e-3):
+    def _test_fit(self, optimizer, atol=1e-2):
         x, y, w = self.gen_linear_data()
         model = self.gen_linear_model(optimizer)
 
@@ -56,22 +56,22 @@ class TestRAdam(TestCase):
         self.assertLess(np.max(np.abs(predicted - y)), atol)
 
     def test_amsgrad(self):
-        self._test_fit(RAdam(amsgrad=True), atol=1e-2)
+        self._test_fit(RAdam(amsgrad=True))
 
     def test_training_amsgrad(self):
         if not TF_KERAS:
             return
         from keras_radam.training import RAdamOptimizer
-        self._test_fit(RAdamOptimizer(amsgrad=True), atol=1e-2)
+        self._test_fit(RAdamOptimizer(amsgrad=True))
 
     def test_decay(self):
-        self._test_fit(RAdam(decay=1e-4, weight_decay=1e-4))
+        self._test_fit(RAdam(decay=1e-4, weight_decay=1e-6))
 
     def test_training_decay(self):
         if not TF_KERAS:
             return
         from keras_radam.training import RAdamOptimizer
-        self._test_fit(RAdamOptimizer(weight_decay=1e-4))
+        self._test_fit(RAdamOptimizer(weight_decay=1e-8))
 
     def test_warmup(self):
         self._test_fit(RAdam(total_steps=38400, warmup_proportion=0.1, min_lr=1e-6))
@@ -102,7 +102,7 @@ class TestRAdam(TestCase):
                     total_steps=38400,
                     warmup_proportion=0.1,
                     min_lr=1e-6,
-                    weight_decay=1e-4,
+                    weight_decay=1e-6,
                     amsgrad=amsgrad,
                 ), loss='sparse_categorical_crossentropy')
 

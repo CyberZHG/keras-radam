@@ -126,15 +126,15 @@ class RAdam(OptimizerV2):
             vhat_t = state_ops.assign(vhat,
                                       math_ops.maximum(vhat, v_t),
                                       use_locking=self._use_locking)
-            v_corr_t = math_ops.sqrt(vhat_t / (1.0 - beta_2_power) + epsilon_t)
+            v_corr_t = math_ops.sqrt(vhat_t / (1.0 - beta_2_power))
         else:
-            v_corr_t = math_ops.sqrt(v_t / (1.0 - beta_2_power) + epsilon_t)
+            v_corr_t = math_ops.sqrt(v_t / (1.0 - beta_2_power))
 
         r_t = math_ops.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
                             (sma_t - 2.0) / (sma_inf - 2.0) *
                             sma_inf / sma_t)
 
-        var_t = tf.where(sma_t >= 5.0, r_t * m_corr_t / v_corr_t, m_corr_t)
+        var_t = tf.where(sma_t >= 5.0, r_t * m_corr_t / (v_corr_t + epsilon_t), m_corr_t)
 
         if self._initial_weight_decay > 0.0:
             var_t += self._get_hyper('weight_decay', var_dtype) * var
@@ -191,15 +191,15 @@ class RAdam(OptimizerV2):
             vhat_t = state_ops.assign(vhat,
                                       math_ops.maximum(vhat, v_t),
                                       use_locking=self._use_locking)
-            v_corr_t = math_ops.sqrt(vhat_t / (1.0 - beta_2_power) + epsilon_t)
+            v_corr_t = math_ops.sqrt(vhat_t / (1.0 - beta_2_power))
         else:
-            v_corr_t = math_ops.sqrt(v_t / (1.0 - beta_2_power) + epsilon_t)
+            v_corr_t = math_ops.sqrt(v_t / (1.0 - beta_2_power))
 
         r_t = math_ops.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
                             (sma_t - 2.0) / (sma_inf - 2.0) *
                             sma_inf / sma_t)
 
-        var_t = tf.where(sma_t >= 5.0, r_t * m_corr_t / v_corr_t, m_corr_t)
+        var_t = tf.where(sma_t >= 5.0, r_t * m_corr_t / (v_corr_t + epsilon_t), m_corr_t)
 
         if self._initial_weight_decay > 0.0:
             var_t += self._get_hyper('weight_decay', var_dtype) * var
