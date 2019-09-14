@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.python.keras.optimizer_v2.optimizer_v2 import OptimizerV2
-from tensorflow.python import ops, math_ops, state_ops, control_flow_ops
+from tensorflow.python import ops, math_ops, state_ops, array_ops, control_flow_ops
 from tensorflow.python.keras import backend as K
 
 __all__ = ['RAdam']
@@ -204,9 +204,12 @@ class RAdam(OptimizerV2):
         if self._initial_weight_decay > 0.0:
             var_t += self._get_hyper('weight_decay', var_dtype) * var
 
-        var_update = state_ops.assign_sub(var,
-                                          lr_t * var_t,
-                                          use_locking=self._use_locking)
+        var_t = lr_t * var_t
+        var_update = state_ops.scatter_sub(
+                        var,
+                        indices,
+                        array_ops.gather(var_t, indices),
+                        use_locking=self._use_locking)
 
         updates = [var_update, m_t, v_t]
         if self.amsgrad:

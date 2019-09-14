@@ -2,9 +2,8 @@ import tensorflow as tf
 from tensorflow.python.eager import context
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import control_flow_ops
-from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import math_ops, state_ops, array_ops
 from tensorflow.python.ops import resource_variable_ops
-from tensorflow.python.ops import state_ops
 from tensorflow.python.training import optimizer
 
 
@@ -235,7 +234,12 @@ class RAdamOptimizer(optimizer.Optimizer):
         if self._initial_weight_decay > 0.0:
             var_t += math_ops.cast(self._weight_decay_t, var.dtype.base_dtype) * var
 
-        var_update = state_ops.assign_sub(var, lr_t * var_t, use_locking=self._use_locking)
+        var_t = lr_t * var_t
+        var_update = state_ops.scatter_sub(
+                    var,
+                    indices,
+                    array_ops.gather(var_t, indices),
+                    use_locking=self._use_locking)
 
         updates = [var_update, m_t, v_t]
         if self._amsgrad:
