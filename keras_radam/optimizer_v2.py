@@ -128,6 +128,7 @@ class RAdam(OptimizerV2):
                                       use_locking=self._use_locking)
             v_corr_t = math_ops.sqrt(vhat_t / (1.0 - beta_2_power))
         else:
+            vhat_t = None
             v_corr_t = math_ops.sqrt(v_t / (1.0 - beta_2_power))
 
         r_t = math_ops.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
@@ -193,6 +194,7 @@ class RAdam(OptimizerV2):
                                       use_locking=self._use_locking)
             v_corr_t = math_ops.sqrt(vhat_t / (1.0 - beta_2_power))
         else:
+            vhat_t = None
             v_corr_t = math_ops.sqrt(v_t / (1.0 - beta_2_power))
 
         r_t = math_ops.sqrt((sma_t - 4.0) / (sma_inf - 4.0) *
@@ -204,12 +206,7 @@ class RAdam(OptimizerV2):
         if self._initial_weight_decay > 0.0:
             var_t += self._get_hyper('weight_decay', var_dtype) * var
 
-        var_t = lr_t * var_t
-        var_update = state_ops.scatter_sub(
-                        var,
-                        indices,
-                        array_ops.gather(var_t, indices),
-                        use_locking=self._use_locking)
+        var_update = self._resource_scatter_add(var, indices, tf.gather(-lr_t * var_t, indices))
 
         updates = [var_update, m_t, v_t]
         if self.amsgrad:

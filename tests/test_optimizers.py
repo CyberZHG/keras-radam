@@ -65,13 +65,13 @@ class TestRAdam(TestCase):
         self._test_fit(RAdamOptimizer(amsgrad=True))
 
     def test_decay(self):
-        self._test_fit(RAdam(decay=1e-4, weight_decay=1e-6))
+        self._test_fit(RAdam(decay=1e-4, weight_decay=1e-6), atol=0.1)
 
     def test_training_decay(self):
         if not TF_KERAS:
             return
         from keras_radam.training import RAdamOptimizer
-        self._test_fit(RAdamOptimizer(weight_decay=1e-8))
+        self._test_fit(RAdamOptimizer(weight_decay=1e-8), atol=0.1)
 
     def test_warmup(self):
         self._test_fit(RAdam(total_steps=38400, warmup_proportion=0.1, min_lr=1e-6))
