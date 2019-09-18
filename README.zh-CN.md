@@ -22,6 +22,10 @@
 pip install keras-rectified-adam
 ```
 
+## 外部链接
+
+- [tensorflow/addons:RectifiedAdam](https://github.com/tensorflow/addons/blob/master/tensorflow_addons/optimizers/rectified_adam.py)
+
 ## 使用
 
 ```python

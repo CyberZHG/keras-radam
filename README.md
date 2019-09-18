@@ -22,6 +22,10 @@ Unofficial implementation of [RAdam](https://arxiv.org/pdf/1908.03265v1.pdf) in 
 pip install keras-rectified-adam
 ```
 
+## External Link
+
+- [tensorflow/addons:RectifiedAdam](https://github.com/tensorflow/addons/blob/master/tensorflow_addons/optimizers/rectified_adam.py)
+
 ## Usage
 
 ```python

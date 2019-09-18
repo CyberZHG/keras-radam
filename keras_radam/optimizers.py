@@ -9,7 +9,7 @@ class RAdam(keras.optimizers.Optimizer):
     """RAdam optimizer.
 
     # Arguments
-        lr: float >= 0. Learning rate.
+        learning_rate: float >= 0. Learning rate.
         beta_1: float, 0 < beta < 1. Generally close to 1.
         beta_2: float, 0 < beta < 1. Generally close to 1.
         epsilon: float >= 0. Fuzz factor. If `None`, defaults to `K.epsilon()`.
@@ -27,13 +27,14 @@ class RAdam(keras.optimizers.Optimizer):
         - [On The Variance Of The Adaptive Learning Rate And Beyond](https://arxiv.org/pdf/1908.03265v1.pdf)
     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
+    def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999,
                  epsilon=None, decay=0., weight_decay=0., amsgrad=False,
                  total_steps=0, warmup_proportion=0.1, min_lr=0., **kwargs):
+        learning_rate = kwargs.pop('learning_rate', learning_rate)
         super(RAdam, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, dtype='int64', name='iterations')
-            self.lr = K.variable(lr, name='lr')
+            self.learning_rate = K.variable(learning_rate, name='learning_rate')
             self.beta_1 = K.variable(beta_1, name='beta_1')
             self.beta_2 = K.variable(beta_2, name='beta_2')
             self.decay = K.variable(decay, name='decay')
@@ -120,9 +121,17 @@ class RAdam(keras.optimizers.Optimizer):
             self.updates.append(K.update(p, new_p))
         return self.updates
 
+    @property
+    def lr(self):
+        return self.learning_rate
+
+    @lr.setter
+    def lr(self, learning_rate):
+        self.learning_rate = learning_rate
+
     def get_config(self):
         config = {
-            'lr': float(K.get_value(self.lr)),
+            'learning_rate': float(K.get_value(self.learning_rate)),
             'beta_1': float(K.get_value(self.beta_1)),
             'beta_2': float(K.get_value(self.beta_2)),
             'decay': float(K.get_value(self.decay)),

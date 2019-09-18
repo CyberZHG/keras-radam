@@ -62,7 +62,7 @@ class TestSimilar(TestCase):
         ))
 
     def test_same_keras(self):
-        self._test_same(RAdam(lr=1e-3, weight_decay=1e-3))
+        self._test_same(RAdam(learning_rate=1e-3, weight_decay=1e-3))
 
     def test_same_tf(self):
         if not TF_KERAS:
