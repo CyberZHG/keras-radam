@@ -1,5 +1,7 @@
 import os
 
+from distutils.util import strtobool
+
 __all__ = [
     'keras', 'utils', 'activations', 'applications', 'backend', 'datasets', 'engine',
     'layers', 'preprocessing', 'wrappers', 'callbacks', 'constraints', 'initializers',
@@ -9,11 +11,11 @@ __all__ = [
 TF_KERAS = False
 EAGER_MODE = False
 
-if os.environ.get('TF_KERAS', '0') != '0':
+if strtobool(os.environ.get('TF_KERAS', '0')):
     import tensorflow as tf
     from tensorflow.python import keras
     TF_KERAS = True
-    if os.environ.get('TF_EAGER', '0') != '0':
+    if strtobool(os.environ.get('TF_EAGER', '0')):
         try:
             tf.enable_eager_execution()
             raise AttributeError()
