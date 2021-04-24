@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.python.keras.optimizer_v2.optimizer_v2 import OptimizerV2
-from tensorflow.python.os import math_ops, state_ops, control_flow_ops
+from tensorflow.python.ops import math_ops, state_ops, control_flow_ops
 from tensorflow.python.keras import backend as K
 
 __all__ = ['RAdam']
@@ -93,7 +93,7 @@ class RAdam(OptimizerV2):
         v = self.get_slot(var, 'v')
         beta_1_t = self._get_hyper('beta_1', var_dtype)
         beta_2_t = self._get_hyper('beta_2', var_dtype)
-        epsilon_t = ops.convert_to_tensor(self.epsilon, var_dtype)
+        epsilon_t = tf.convert_to_tensor(self.epsilon, var_dtype)
         local_step = math_ops.cast(self.iterations + 1, var_dtype)
         beta_1_power = math_ops.pow(beta_1_t, local_step)
         beta_2_power = math_ops.pow(beta_2_t, local_step)
@@ -154,7 +154,7 @@ class RAdam(OptimizerV2):
         lr_t = self._decayed_lr(var_dtype)
         beta_1_t = self._get_hyper('beta_1', var_dtype)
         beta_2_t = self._get_hyper('beta_2', var_dtype)
-        epsilon_t = ops.convert_to_tensor(self.epsilon, var_dtype)
+        epsilon_t = tf.convert_to_tensor(self.epsilon, var_dtype)
         local_step = math_ops.cast(self.iterations + 1, var_dtype)
         beta_1_power = math_ops.pow(beta_1_t, local_step)
         beta_2_power = math_ops.pow(beta_2_t, local_step)
@@ -177,14 +177,14 @@ class RAdam(OptimizerV2):
         m = self.get_slot(var, 'm')
         m_scaled_g_values = grad * (1 - beta_1_t)
         m_t = state_ops.assign(m, m * beta_1_t, use_locking=self._use_locking)
-        with ops.control_dependencies([m_t]):
+        with tf.control_dependencies([m_t]):
             m_t = self._resource_scatter_add(m, indices, m_scaled_g_values)
         m_corr_t = m_t / (1.0 - beta_1_power)
 
         v = self.get_slot(var, 'v')
         v_scaled_g_values = (grad * grad) * (1 - beta_2_t)
         v_t = state_ops.assign(v, v * beta_2_t, use_locking=self._use_locking)
-        with ops.control_dependencies([v_t]):
+        with tf.control_dependencies([v_t]):
             v_t = self._resource_scatter_add(v, indices, v_scaled_g_values)
 
         if self.amsgrad:

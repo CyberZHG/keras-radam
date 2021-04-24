@@ -3,7 +3,7 @@ from unittest import TestCase
 import torch
 import numpy as np
 
-from keras_radam.backend import keras, TF_KERAS
+from keras_radam.backend import keras
 from keras_radam.backend import backend as K
 from keras_radam import RAdam
 
@@ -47,7 +47,7 @@ class TestSimilar(TestCase):
             torch_loss = loss.tolist()
             loss.backward()
             optimizer.step()
-            keras_loss = keras_linear.train_on_batch(x, y).tolist()
+            keras_loss = keras_linear.train_on_batch(x, y)
             print(i, torch_loss, keras_loss)
         self.assertLess(abs(torch_loss - keras_loss), 0.1)
         self.assertTrue(np.allclose(
@@ -63,9 +63,3 @@ class TestSimilar(TestCase):
 
     def test_same_keras(self):
         self._test_same(RAdam(learning_rate=1e-3, weight_decay=1e-3))
-
-    def test_same_tf(self):
-        if not TF_KERAS:
-            return
-        from keras_radam.training import RAdamOptimizer
-        self._test_same(RAdamOptimizer(learning_rate=1e-3, weight_decay=1e-3))

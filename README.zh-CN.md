@@ -6,12 +6,6 @@
 ![Downloads](https://img.shields.io/pypi/dm/keras-rectified-adam.svg)
 ![License](https://img.shields.io/pypi/l/keras-rectified-adam.svg)
 
-![](https://img.shields.io/badge/keras-tensorflow-blue.svg)
-![](https://img.shields.io/badge/keras-theano-blue.svg)
-![](https://img.shields.io/badge/keras-tf.keras-blue.svg)
-![](https://img.shields.io/badge/keras-tf.keras/eager-blue.svg)
-![](https://img.shields.io/badge/keras-tf.keras/2.0_beta-blue.svg)
-
 \[[中文](https://github.com/CyberZHG/keras-radam/blob/master/README.zh-CN.md)|[English](https://github.com/CyberZHG/keras-radam/blob/master/README.md)\]
 
 [RAdam](https://arxiv.org/pdf/1908.03265v1.pdf)的非官方实现，包含Keras和TensorFlow两种。

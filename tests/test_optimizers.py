@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from keras_radam.backend import keras, TF_KERAS, EAGER_MODE
+from keras_radam.backend import keras
 from keras_radam import RAdam
 
 
@@ -58,35 +58,14 @@ class TestRAdam(TestCase):
     def test_amsgrad(self):
         self._test_fit(RAdam(amsgrad=True))
 
-    def test_training_amsgrad(self):
-        if not TF_KERAS:
-            return
-        from keras_radam.training import RAdamOptimizer
-        self._test_fit(RAdamOptimizer(amsgrad=True))
-
     def test_decay(self):
         self._test_fit(RAdam(decay=1e-4, weight_decay=1e-6), atol=0.1)
-
-    def test_training_decay(self):
-        if not TF_KERAS:
-            return
-        from keras_radam.training import RAdamOptimizer
-        self._test_fit(RAdamOptimizer(weight_decay=1e-8), atol=0.1)
 
     def test_warmup(self):
         self._test_fit(RAdam(total_steps=38400, warmup_proportion=0.1, min_lr=1e-6))
 
-    def test_training_warmup(self):
-        if not TF_KERAS:
-            return
-        from keras_radam.training import RAdamOptimizer
-        self._test_fit(RAdamOptimizer(total_steps=38400, warmup_proportion=0.1, min_lr=1e-6))
-
     def test_fit_embed(self):
         optimizers = [RAdam]
-        if TF_KERAS:
-            from keras_radam.training import RAdamOptimizer
-            optimizers.append(RAdamOptimizer)
         for optimizer in optimizers:
             for amsgrad in [False, True]:
                 model = keras.models.Sequential()
@@ -119,27 +98,3 @@ class TestRAdam(TestCase):
                 model_path = os.path.join(tempfile.gettempdir(), 'test_accumulation_%f.h5' % np.random.random())
                 model.save(model_path)
                 keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
-
-    def test_tensor(self):
-        if not TF_KERAS or EAGER_MODE:
-            return
-        import tensorflow as tf
-        from keras_radam.training import RAdamOptimizer
-
-        x = tf.compat.v1.placeholder("float")
-        y = tf.compat.v1.placeholder("float")
-        w = tf.Variable([1.0, 2.0], name="w")
-        y_model = tf.multiply(x, w[0]) + w[1]
-        loss = tf.square(y - y_model)
-        train_op = RAdamOptimizer().minimize(loss)
-
-        model = tf.global_variables_initializer()
-
-        with tf.Session() as session:
-            session.run(model)
-            for i in range(10000):
-                x_value = np.random.rand()
-                y_value = x_value * 2 + 6
-                session.run(train_op, feed_dict={x: x_value, y: y_value})
-            w_value = session.run(w)
-            print("Predicted model: {a:.3f}x + {b:.3f}".format(a=w_value[0], b=w_value[1]))
