@@ -39,7 +39,9 @@ class TestRAdam(TestCase):
         if isinstance(optimizer, RAdam):
             model_path = os.path.join(tempfile.gettempdir(), 'test_accumulation_%f.h5' % np.random.random())
             model.save(model_path)
-            model = keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
+            from tensorflow.python.keras.utils.generic_utils import CustomObjectScope
+            with CustomObjectScope({'RAdam': RAdam}):  # Workaround for incorrect global variable used in keras
+                model = keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
             callbacks.append(keras.callbacks.ReduceLROnPlateau(monitor='loss', min_lr=1e-8, patience=2, verbose=True))
 
         model.fit(x, y,
@@ -49,7 +51,9 @@ class TestRAdam(TestCase):
 
         model_path = os.path.join(tempfile.gettempdir(), 'test_accumulation_%f.h5' % np.random.random())
         model.save(model_path)
-        model = keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
+        from tensorflow.python.keras.utils.generic_utils import CustomObjectScope
+        with CustomObjectScope({'RAdam': RAdam}):  # Workaround for incorrect global variable used in keras
+            model = keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
 
         x, y, w = self.gen_linear_data(w)
         predicted = model.predict(x)
@@ -97,4 +101,6 @@ class TestRAdam(TestCase):
 
                 model_path = os.path.join(tempfile.gettempdir(), 'test_accumulation_%f.h5' % np.random.random())
                 model.save(model_path)
-                keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})
+                from tensorflow.python.keras.utils.generic_utils import CustomObjectScope
+                with CustomObjectScope({'RAdam': RAdam}):  # Workaround for incorrect global variable used in keras
+                    keras.models.load_model(model_path, custom_objects={'RAdam': RAdam})

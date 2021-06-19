@@ -48,7 +48,7 @@ class TestSimilar(TestCase):
             loss.backward()
             optimizer.step()
             keras_loss = keras_linear.train_on_batch(x, y)
-            print(i, torch_loss, keras_loss)
+            # print(i, torch_loss, keras_loss)
         self.assertLess(abs(torch_loss - keras_loss), 0.1)
         self.assertTrue(np.allclose(
             torch_linear.weight.detach().numpy().transpose(),
