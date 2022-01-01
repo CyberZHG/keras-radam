@@ -2,9 +2,9 @@ from unittest import TestCase
 
 import torch
 import numpy as np
+from tensorflow import keras
+from tensorflow.keras import backend as K
 
-from keras_radam.backend import keras
-from keras_radam.backend import backend as K
 from keras_radam import RAdam
 
 from .official import RAdam as OfficialRAdam
